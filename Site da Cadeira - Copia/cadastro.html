@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificação de Formulário</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #020F59;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        header {
+            top: 10px;
+            left: 10px;
+            text-align: center;
+        }
+
+        .con {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 600px;
+            margin-top: 50px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 96%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .valid {
+            color: green;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .logo img {
+            width: 100px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <br>
+        <br>
+        <br>
+        <br>
+        <div class="logo"><a href="index.html"><img src="imagens/logo.png" alt="Logo do site" /></a></div>
+    </header>
+
+    <main>
+        <div class="con">
+            <h2>Cadastro</h2>
+            <br>
+            <form id="cadastroForm" action="/submit_form" method="post">
+                <label for="email">E-mail:</label>
+                <input type="email" id="email" name="email" required class="input" />
+                <br>
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" name="senha" required class="input" />
+                <ul style="font-size: 18px;">
+                    <li id="ruleLength" class="rule">Pelo menos 8 caracteres</li>
+                    <li id="ruleUppercase" class="rule">Pelo menos uma letra maiúscula</li>
+                    <li id="ruleLowercase" class="rule">Pelo menos uma letra minúscula</li>
+                    <li id="ruleNumber" class="rule">Pelo menos um número</li>
+                    <li id="ruleSpecial" class="rule">Pelo menos um caractere especial (!@#$%^&*)</li>
+                </ul>
+
+                <label for="confirmarSenha">Digite a senha novamente:</label>
+                <input type="password" id="confirmarSenha" name="confirmarSenha" required class="input" />
+                <div id="passwordMatch" class="hidden">As senhas coincidem!</div>
+                <br>
+                <label for="cnpj">Informar CNPJ:</label>
+                <input type="text" id="cnpj" name="cnpj" pattern="\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}" maxlength="18"
+                    placeholder="00.000.000/0000-00" required>
+                <div id="cnpjValidationMessage" class="error hidden">CNPJ inválido</div>
+                <br>
+                <div id="validationMessage"></div>
+                <br>
+                <button type="submit" style="padding: 10px; font-size: 20px;">Enviar</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        const form = document.getElementById('cadastroForm');
+        const senhaInput = document.getElementById('senha');
+        const confirmarSenhaInput = document.getElementById('confirmarSenha');
+        const cnpjInput = document.getElementById('cnpj');
+        const validationMessage = document.getElementById('validationMessage');
+        const passwordMatch = document.getElementById('passwordMatch');
+        const cnpjValidationMessage = document.getElementById('cnpjValidationMessage');
+
+        senhaInput.addEventListener('input', validarSenha);
+        confirmarSenhaInput.addEventListener('input', validarRepeticaoSenha);
+        cnpjInput.addEventListener('input', validarCNPJ);
+
+        function validarSenha() {
+            const value = senhaInput.value;
+            let validCount = 0;
+
+            if (value.length >= 8) {
+                document.getElementById('ruleLength').classList.add('valid');
+                validCount++;
+            } else {
+                document.getElementById('ruleLength').classList.remove('valid');
+            }
+
+            if (/[A-Z]/.test(value)) {
+                document.getElementById('ruleUppercase').classList.add('valid');
+                validCount++;
+            } else {
+                document.getElementById('ruleUppercase').classList.remove('valid');
+            }
+
+            if (/[a-z]/.test(value)) {
+                document.getElementById('ruleLowercase').classList.add('valid');
+                validCount++;
+            } else {
+                document.getElementById('ruleLowercase').classList.remove('valid');
+            }
+
+            if (/\d/.test(value)) {
+                document.getElementById('ruleNumber').classList.add('valid');
+                validCount++;
+            } else {
+                document.getElementById('ruleNumber').classList.remove('valid');
+            }
+
+            if (/[\W_]/.test(value)) {
+                document.getElementById('ruleSpecial').classList.add('valid');
+                validCount++;
+            } else {
+                document.getElementById('ruleSpecial').classList.remove('valid');
+            }
+
+            if (validCount === 5) {
+                validationMessage.textContent = "Senha válida";
+                validationMessage.style.color = "green";
+                return true;
+            } else {
+                validationMessage.textContent = "Senha inválida";
+                validationMessage.style.color = "red";
+                return false;
+            }
+        }
+
+        function validarRepeticaoSenha() {
+            if (senhaInput.value === confirmarSenhaInput.value) {
+                passwordMatch.classList.remove('hidden');
+                passwordMatch.textContent = 'As senhas coincidem!';
+                return true;
+            } else {
+                passwordMatch.classList.add('hidden');
+                passwordMatch.textContent = '';
+                return false;
+            }
+        }
+
+        function validarCNPJ() {
+            const cnpj = cnpjInput.value.replace(/[^\d]+/g, '');
+
+            if (cnpj.length !== 14) {
+                cnpjValidationMessage.classList.remove('hidden');
+                return false;
+            }
+
+            let tamanho = cnpj.length - 2;
+            let numeros = cnpj.substring(0, tamanho);
+            let digitos = cnpj.substring(tamanho);
+            let soma = 0;
+            let pos = tamanho - 7;
+
+            for (let i = tamanho; i >= 1; i--) {
+                soma += numeros.charAt(tamanho - i) * pos--;
+                if (pos < 2) pos = 9;
+            }
+
+            let resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+            if (resultado != digitos.charAt(0)) {
+                cnpjValidationMessage.classList.remove('hidden');
+                return false;
+            }
+
+            tamanho = tamanho + 1;
+            numeros = cnpj.substring(0, tamanho);
+            soma = 0;
+            pos = tamanho - 7;
+
+            for (let i = tamanho; i >= 1; i--) {
+                soma += numeros.charAt(tamanho - i) * pos--;
+                if (pos < 2) pos = 9;
+            }
+
+            resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+            if (resultado != digitos.charAt(1)) {
+                cnpjValidationMessage.classList.remove('hidden');
+                return false;
+            }
+
+            cnpjValidationMessage.classList.add('hidden');
+            return true;
+        }
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            if (validarSenha() && validarRepeticaoSenha() && validarCNPJ()) {
+                validationMessage.style.color = "green";
+                form.submit();
+            } else {
+                validationMessage.style.color = "red";
+            }
+        });
+    </script>
+</body>
+
+</html>
